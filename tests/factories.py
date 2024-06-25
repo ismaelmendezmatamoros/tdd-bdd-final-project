@@ -31,4 +31,17 @@ class ProductFactory(factory.Factory):
         model = Product
 
     id = factory.Sequence(lambda n: n)
-   ## Add code to create Fake Products 
+   ## Add code to create Fake Products
+    #UNKNOWN = 0
+    #CLOTHS = 1
+    #FOOD = 2
+    #HOUSEWARES = 3
+    #AUTOMOTIVE = 4
+    #TOOLS = 5
+
+    id = 
+    name = 
+    description = 
+    price = 
+    available = 
+    category = 
