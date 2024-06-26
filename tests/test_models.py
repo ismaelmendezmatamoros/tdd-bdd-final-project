@@ -135,3 +135,37 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(len(catalog), 1)
         self.assertEqual(catalog[0].id, old_id)
         self.assertEqual(catalog[0].description, new_description)
+
+    def test_delete_product(self):
+        """It should delete a product"""
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertEqual(len(Product.all()), 1)
+        product.delete()
+        self.assertEqual(len(Product.all()), 0)
+        num_insertions = 5
+        for x in range(num_insertions):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+        catalog = Product.all()
+        for counter in range(0, len(catalog)):
+            catalog[counter].delete()
+            self.assertEqual(len(Product.all()), num_insertions - (counter+1))
+
+    def test_list_all_products(self):
+        """It SHOULD list all products"""
+        num_insertions = 5
+        inserted_products = []
+        for counter in range(num_insertions):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            inserted_products.append(product)
+        self.assertEqual(len(Product.all()), len(inserted_products))
+        remote_products = Product.all()
+        lists_diff = [item for item in remote_products if item not in inserted_products]
+        self.assertEqual(len(lists_diff), 0)
+            
+        
