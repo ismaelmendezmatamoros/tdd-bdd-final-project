@@ -155,7 +155,7 @@ class TestProductModel(unittest.TestCase):
             self.assertEqual(len(Product.all()), num_insertions - (counter+1))
 
     def test_list_all_products(self):
-        """It SHOULD list all products"""
+        """It should list all products"""
         num_insertions = 5
         inserted_products = []
         for counter in range(num_insertions):
@@ -168,4 +168,21 @@ class TestProductModel(unittest.TestCase):
         lists_diff = [item for item in remote_products if item not in inserted_products]
         self.assertEqual(len(lists_diff), 0)
             
-        
+    def test_find_product_by_name(self):
+        """It should find products by name"""
+        num_insertions = 5
+        inserted_products = []
+        for counter in range(num_insertions):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            inserted_products.append(product)
+        read_products = [Product.find_by_name(product.name) for product in inserted_products ]
+        self.assertEqual(len(read_products), num_insertions)
+        for items in read_products:
+            product_occurrences = [product.name for product in items]
+            self.assertNotEqual(len(product_occurrences), 0)
+            intersection = [product for product in product_occurrences if product not in inserted_products]
+            self.assertEqual(len(intersection), 0)
+            print(intersection)
+#        self.assertEqual([product.name for product in read_products],[product.name for product in inserted_products])
