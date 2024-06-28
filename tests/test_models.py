@@ -167,7 +167,7 @@ class TestProductModel(unittest.TestCase):
         remote_products = Product.all()
         lists_diff = [item for item in remote_products if item not in inserted_products]
         self.assertEqual(len(lists_diff), 0)
-            
+
     def test_find_product_by_name(self):
         """It should find products by name"""
         num_insertions = 10
@@ -187,14 +187,13 @@ class TestProductModel(unittest.TestCase):
             # Check if all found products have the same name as the product used in the search
             different_names_product = [p for p in found_products if p.name != product.name]
             self.assertEqual(len(different_names_product), 0)
-            
 
     def test_find_product_by_availability(self):
         """It should find products by availability"""
         num_insertions = 10
         available_products = []
         unavailable_products = []
-        # Create a set of products
+        # Create a set of products divided in available and unavaliable
         for counter in range(num_insertions):
             product = ProductFactory()
             product.id = None
@@ -205,12 +204,14 @@ class TestProductModel(unittest.TestCase):
                 unavailable_products.append(product)
         available_query = Product.find_by_availability(True)
         unavailable_query = Product.find_by_availability(False)
+        # get all theproducts from the queries
         found_available_products = [product for product in available_query]
         found_unavailable_products = [product for product in unavailable_query]
+        # Check that the number of items are the same
         self.assertEqual(len(available_products), len(found_available_products))
         self.assertEqual(len(unavailable_products), len(found_unavailable_products))
+        # Check that all the queried items are correct
         available_products_diff = [p for p in available_products if p not in found_available_products]
         unavailable_products_diff = [p for p in unavailable_products if p not in found_unavailable_products]
         self.assertEqual(len(available_products_diff), 0)
         self.assertEqual(len(unavailable_products_diff), 0)
-
