@@ -170,19 +170,47 @@ class TestProductModel(unittest.TestCase):
             
     def test_find_product_by_name(self):
         """It should find products by name"""
-        num_insertions = 5
+        num_insertions = 10
         inserted_products = []
+        # Create a set of products
         for counter in range(num_insertions):
             product = ProductFactory()
             product.id = None
             product.create()
             inserted_products.append(product)
-        read_products = [Product.find_by_name(product.name) for product in inserted_products ]
-        self.assertEqual(len(read_products), num_insertions)
-        for items in read_products:
-            product_occurrences = [product.name for product in items]
-            self.assertNotEqual(len(product_occurrences), 0)
-            intersection = [product for product in product_occurrences if product not in inserted_products]
-            self.assertEqual(len(intersection), 0)
-            print(intersection)
-#        self.assertEqual([product.name for product in read_products],[product.name for product in inserted_products])
+        # Check that the product creates can be found by name and found products have the same name
+        for product in inserted_products:
+            query = Product.find_by_name(product.name)
+            # Get all the products from the query
+            found_products = [found_product for found_product in query]
+            self.assertNotEqual(len(found_products), 0)
+            # Check if all found products have the same name as the product used in the search
+            different_names_product = [p for p in found_products if p.name != product.name]
+            self.assertEqual(len(different_names_product), 0)
+            
+
+    def test_find_product_by_availability(self):
+        """It should find products by availability"""
+        num_insertions = 10
+        available_products = []
+        unavailable_products = []
+        # Create a set of products
+        for counter in range(num_insertions):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            if product.available:
+                available_products.append(product)
+            else:
+                unavailable_products.append(product)
+        available_query = Product.find_by_availability(True)
+        unavailable_query = Product.find_by_availability(False)
+        found_available_products = [product for product in available_query]
+        found_unavailable_products = [product for product in unavailable_query]
+        self.assertEqual(len(available_products), len(found_available_products))
+        self.assertEqual(len(unavailable_products), len(found_unavailable_products))
+        available_products_diff = [p for p in available_products if p not in found_available_products]
+        unavailable_products_diff = [p for p in unavailable_products if p not in found_unavailable_products]
+        self.assertEqual(len(available_products_diff), 0)
+        self.assertEqual(len(unavailable_products_diff), 0)
+
