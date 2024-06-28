@@ -271,3 +271,39 @@ class TestProductModel(unittest.TestCase):
             self.assertEqual(len(query_products), len(product_list))
             diff = [p for p in product_list if p not in query_products]
             self.assertEqual(len(diff), 0)
+
+    def test_serialize(self):
+        """Test serialize"""
+        product = ProductFactory()
+        serialized_product = product.serialize()
+        self.assertEqual(serialized_product["id"], product.id)
+        self.assertEqual(serialized_product["name"], product.name)
+        self.assertEqual(serialized_product["description"], product.description)
+        self.assertEqual(serialized_product["price"], str(product.price))
+        self.assertEqual(serialized_product["available"], product.available)
+        self.assertEqual(serialized_product["category"], product.category.name)
+
+    def test_deserialize(self):
+        """Test deserialize"""
+        product = ProductFactory()
+        name = "Fork"
+        description = "A fork"
+        price = 12.5
+        available = True
+        category = Category.HOUSEWARES
+        product_dict = {
+            "name": name,
+            "description": description,
+            "price": str(price),
+            "available": available,
+            "category": category.name}
+        product.deserialize(data=product_dict)
+        self.assertEqual(product.name, name)
+        self.assertEqual(product.description, description)
+        self.assertEqual(product.price, price)
+        self.assertEqual(product.available, available)
+        self.assertEqual(product.category, category)
+        bad = product_dict.copy()
+        bad["category"] = "123"
+        self.assertRaises(DataValidationError, product.deserialize, bad)
+#        product.deserialize({})
