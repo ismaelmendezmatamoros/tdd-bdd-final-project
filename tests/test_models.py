@@ -152,8 +152,8 @@ class TestProductModel(unittest.TestCase):
             product.id = None
             product.create()
         catalog = Product.all()
-        for counter, _ in enumerate(catalog):
-            catalog[counter].delete()
+        for counter, item in enumerate(catalog):
+            item.delete()
             self.assertEqual(len(Product.all()), num_insertions - (counter+1))
 
     def test_list_all_products(self):
@@ -224,7 +224,7 @@ class TestProductModel(unittest.TestCase):
         category_dict = {}
         all_products = []
         # Create a set of products divided in categories
-        for counter in range(num_insertions):
+        for _ in range(num_insertions):
             product = ProductFactory()
             product.id = None
             product.create()
@@ -233,11 +233,13 @@ class TestProductModel(unittest.TestCase):
         for product in all_products:
             category_dict[product.category].append(product)
         # Check that the read products per category are correct
-        for key in category_dict:
+        for item in category_dict.items():
+            key = item[0]
+            product_list = item[1]
             query = Product.find_by_category(key)
-            query_products = [p for p in query]
-            self.assertEqual(len(query_products), len(category_dict[key]))
-            diff = [p for p in category_dict[key] if p not in query_products]
+            query_products = list(query)
+            self.assertEqual(len(query_products), len(product_list))
+            diff = [p for p in product_list if p not in query_products]
             self.assertEqual(len(diff), 0)
 
     def test_find_product_by_price(self):
@@ -246,7 +248,7 @@ class TestProductModel(unittest.TestCase):
         category_dict = {}
         all_products = []
         # Create a set of products divided in categories
-        for counter in range(num_insertions):
+        for _ in range(num_insertions):
             product = ProductFactory()
             product.id = None
             product.create()
@@ -255,15 +257,17 @@ class TestProductModel(unittest.TestCase):
         for product in all_products:
             category_dict[product.price].append(product)
         # Check that the read products per category are correct
-        for key in category_dict:
+        for item in category_dict.items():
+            key = item[0]
+            product_list = item[1]
             query = Product.find_by_price(key)
-            query_products = [p for p in query]
-            self.assertEqual(len(query_products), len(category_dict[key]))
-            diff = [p for p in category_dict[key] if p not in query_products]
+            query_products = list(query)
+            self.assertEqual(len(query_products), len(product_list))
+            diff = [p for p in product_list if p not in query_products]
             self.assertEqual(len(diff), 0)
             # Test passing price as an string
             query = Product.find_by_price(str(key))
-            query_products = [p for p in query]
-            self.assertEqual(len(query_products), len(category_dict[key]))
-            diff = [p for p in category_dict[key] if p not in query_products]
+            query_products = list(query)
+            self.assertEqual(len(query_products), len(product_list))
+            diff = [p for p in product_list if p not in query_products]
             self.assertEqual(len(diff), 0)
