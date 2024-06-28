@@ -27,7 +27,7 @@ import os
 import logging
 import unittest
 from decimal import Decimal
-from service.models import Product, Category, db
+from service.models import Product, Category, db, DataValidationError
 from service import app
 from tests.factories import ProductFactory
 
@@ -135,6 +135,8 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(len(catalog), 1)
         self.assertEqual(catalog[0].id, old_id)
         self.assertEqual(catalog[0].description, new_description)
+        product.id = None
+        self.assertRaises(DataValidationError, product.update)
 
     def test_delete_product(self):
         """It should delete a product"""
@@ -145,12 +147,12 @@ class TestProductModel(unittest.TestCase):
         product.delete()
         self.assertEqual(len(Product.all()), 0)
         num_insertions = 5
-        for x in range(num_insertions):
+        for _ in range(num_insertions):
             product = ProductFactory()
             product.id = None
             product.create()
         catalog = Product.all()
-        for counter in range(0, len(catalog)):
+        for counter, _ in enumerate(catalog):
             catalog[counter].delete()
             self.assertEqual(len(Product.all()), num_insertions - (counter+1))
 
@@ -158,7 +160,7 @@ class TestProductModel(unittest.TestCase):
         """It should list all products"""
         num_insertions = 5
         inserted_products = []
-        for counter in range(num_insertions):
+        for _ in range(num_insertions):
             product = ProductFactory()
             product.id = None
             product.create()
@@ -173,7 +175,7 @@ class TestProductModel(unittest.TestCase):
         num_insertions = 10
         inserted_products = []
         # Create a set of products
-        for counter in range(num_insertions):
+        for _ in range(num_insertions):
             product = ProductFactory()
             product.id = None
             product.create()
@@ -182,7 +184,7 @@ class TestProductModel(unittest.TestCase):
         for product in inserted_products:
             query = Product.find_by_name(product.name)
             # Get all the products from the query
-            found_products = [found_product for found_product in query]
+            found_products = list(query)
             self.assertNotEqual(len(found_products), 0)
             # Check if all found products have the same name as the product used in the search
             different_names_product = [p for p in found_products if p.name != product.name]
@@ -194,7 +196,7 @@ class TestProductModel(unittest.TestCase):
         available_products = []
         unavailable_products = []
         # Create a set of products divided in available and unavaliable
-        for counter in range(num_insertions):
+        for _ in range(num_insertions):
             product = ProductFactory()
             product.id = None
             product.create()
@@ -205,8 +207,8 @@ class TestProductModel(unittest.TestCase):
         available_query = Product.find_by_availability(True)
         unavailable_query = Product.find_by_availability(False)
         # get all theproducts from the queries
-        found_available_products = [product for product in available_query]
-        found_unavailable_products = [product for product in unavailable_query]
+        found_available_products = list(available_query)
+        found_unavailable_products = list(unavailable_query)
         # Check that the number of items are the same
         self.assertEqual(len(available_products), len(found_available_products))
         self.assertEqual(len(unavailable_products), len(found_unavailable_products))
@@ -215,3 +217,53 @@ class TestProductModel(unittest.TestCase):
         unavailable_products_diff = [p for p in unavailable_products if p not in found_unavailable_products]
         self.assertEqual(len(available_products_diff), 0)
         self.assertEqual(len(unavailable_products_diff), 0)
+
+    def test_find_product_by_category(self):
+        """It should find products by category"""
+        num_insertions = 10
+        category_dict = {}
+        all_products = []
+        # Create a set of products divided in categories
+        for counter in range(num_insertions):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            category_dict[product.category] = []
+            all_products.append(product)
+        for product in all_products:
+            category_dict[product.category].append(product)
+        # Check that the read products per category are correct
+        for key in category_dict:
+            query = Product.find_by_category(key)
+            query_products = [p for p in query]
+            self.assertEqual(len(query_products), len(category_dict[key]))
+            diff = [p for p in category_dict[key] if p not in query_products]
+            self.assertEqual(len(diff), 0)
+
+    def test_find_product_by_price(self):
+        """It should find products by price"""
+        num_insertions = 10
+        category_dict = {}
+        all_products = []
+        # Create a set of products divided in categories
+        for counter in range(num_insertions):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            category_dict[product.price] = []
+            all_products.append(product)
+        for product in all_products:
+            category_dict[product.price].append(product)
+        # Check that the read products per category are correct
+        for key in category_dict:
+            query = Product.find_by_price(key)
+            query_products = [p for p in query]
+            self.assertEqual(len(query_products), len(category_dict[key]))
+            diff = [p for p in category_dict[key] if p not in query_products]
+            self.assertEqual(len(diff), 0)
+            # Test passing price as an string
+            query = Product.find_by_price(str(key))
+            query_products = [p for p in query]
+            self.assertEqual(len(query_products), len(category_dict[key]))
+            diff = [p for p in category_dict[key] if p not in query_products]
+            self.assertEqual(len(diff), 0)
