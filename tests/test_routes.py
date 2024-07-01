@@ -167,6 +167,39 @@ class TestProductRoutes(TestCase):
     # ADD YOUR TEST CASES HERE
     #
 
+    def test_read_existing_product(self):
+        """Test reading an existing product"""
+        product = self._create_products(1)[0]
+        response = self.client.get(f"{BASE_URL}/{product.id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        json_data = response.get_json()
+        self.assertEqual(json_data["name"], product.name)
+
+    def test_read_unexisting_product(self):
+        """Test reading an unexisting product"""
+        product = self._create_products(1)[0]
+        product.id = product.id + 1
+        response = self.client.get(f"{BASE_URL}/{product.id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_product(self):
+        """Test reading an unexisting product"""
+        product = self._create_products(1)[0]
+        product.name = "another" + product.name
+        product.description = "another" + product.description
+        product.price = product.price + 1
+        product.available = not product.available
+        product.update()
+        response = self.client.get(f"{BASE_URL}/{product.id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        json_data = response.get_json()
+        serialized_product = product.serialize()
+        self.assertEqual(json_data["name"], serialized_product["name"])
+#        self.assertEqual(new_product["description"], test_product.description)
+#        self.assertEqual(Decimal(new_product["price"]), test_product.price)
+#        self.assertEqual(new_product["available"], test_product.available)
+
+
     ######################################################################
     # Utility functions
     ######################################################################
