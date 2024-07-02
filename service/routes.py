@@ -20,7 +20,7 @@ Product Store Service with UI
 """
 from flask import jsonify, request, abort
 from flask import url_for  # noqa: F401 pylint: disable=unused-import
-from service.models import Product
+from service.models import Product, Category
 from service.common import status  # HTTP Status Codes
 from . import app
 
@@ -102,6 +102,26 @@ def create_products():
 # PLACE YOUR CODE TO LIST ALL PRODUCTS HERE
 #
 
+@app.route("/products", methods=["GET"])
+def list_all():
+    name = request.args.get("name")
+    category = request.args.get("category")
+    availability = request.args.get("available")
+    products = []
+    if name:
+        products = Product.find_by_name(name)
+    else:
+        if category:
+            products = Product.find_by_category(Category[category])
+        else:
+            if availability:
+                boolean_value = availability == "True"
+                products = Product.find_by_availability(availability)
+            else:
+                products = Product.all()
+    serialized = [product.serialize() for product in products]
+    return serialized, status.HTTP_200_OK
+
 ######################################################################
 # R E A D   A   P R O D U C T
 ######################################################################
@@ -151,4 +171,5 @@ def delete_product(product_id):
         abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
     product.delete()
     return "", status.HTTP_204_NO_CONTENT
-    
+   
+
