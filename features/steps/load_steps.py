@@ -45,13 +45,13 @@ def step_impl(context):
 
     #
     # load the database with new products
-    #| name       | description     | price   | available | category   |
+    #
     for row in context.table:
         data = {
             "name": row["name"],
             "description": row["description"],
             "price": row["price"],
-            "available": row["available"],
+            "available": row["available"] == "True",
             "category": row["category"]
         }
         context.resp = requests.post(rest_endpoint, json=data)
