@@ -70,7 +70,8 @@ Scenario: Update a product
     And I press the "Clear" button
     And I paste the "Id" field
     And I press the "Retrieve" button
-    Then I should see "40.0" in the "Price" field
+    Then I should see the message "Success"
+    And I should see "40.0" in the "Price" field
 
 Scenario: Delete a product
     When I visit the "Home Page"
@@ -84,4 +85,45 @@ Scenario: Delete a product
     Then I should see the message "Success"
     When I press the "Delete" button
     Then I should see the message "Success"
+    And I paste the "Id" field
+    And I press the "Search" button
+    And I should not see "Hat" in the results
 
+Scenario: List all products
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Hat" in the results
+    And I should see "Shoes" in the results
+    And I should see "Big Mac" in the results
+    And I should see "Sheets" in the results
+
+Scenario: Search by category
+    When I visit the "Home Page"
+    And I select "CLOTHS" in the "Category" dropdown
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Hat" in the results
+    And I should see "Shoes" in the results
+    And I should not see "Big Mac" in the results
+    And I should not see "Sheets" in the results
+
+Scenario: Search by availability
+    When I visit the "Home Page"
+    And I select "True" in the "Available" dropdown
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Hat" in the results
+    And I should not see "Shoes" in the results
+    And I should see "Big Mac" in the results
+    And I should see "Sheets" in the results
+
+Scenario: Search by name
+    When I visit the "Home Page"
+    And I set the "Name" to "Hat"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Hat" in the results
+    And I should not see "Shoes" in the results
+    And I should not see "Big Mac" in the results
+    And I should not see "Sheets" in the results
