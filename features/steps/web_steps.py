@@ -106,6 +106,37 @@ def step_impl(context, element_name):
 
 ## UPDATE CODE HERE ##
 
+@then(u'I should see the message "{message_str}"')
+def step_impl(context, message_str):
+    found = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'flash_message'),
+            message_str
+        )
+    )
+    assert(found)
+
+@when(u'I press the "{button_id}" button')
+def step_impl(context, button_id):
+    element_id = button_id.lower().replace(' ', '_') + "-btn"
+    context.driver.find_element(By.ID, element_id).click()
+
+@then(u'I should see "{content_str}" in the results')
+def step_impl(context, content_str):
+    found = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'search_results'),
+            content_str
+        )
+    )
+    assert(found)
+
+@then(u'I should not see "{content_str}" in the results')
+def step_impl(context, content_str):
+    element = context.driver.find_element_by_id('search_results')
+    assert(content_str not in element.text)
+
+
 ##################################################################
 # This code works because of the following naming convention:
 # The id field for text input in the html is the element name

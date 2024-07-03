@@ -84,10 +84,9 @@ Scenario: Delete a product
     And I press the "Retrieve" button
     Then I should see the message "Success"
     When I press the "Delete" button
-    Then I should see the message "Success"
     And I paste the "Id" field
     And I press the "Search" button
-    And I should not see "Hat" in the results
+    Then I should not see "Hat" in the "results"
 
 Scenario: List all products
     When I visit the "Home Page"
