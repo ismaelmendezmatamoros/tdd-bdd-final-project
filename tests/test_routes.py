@@ -28,7 +28,6 @@ import os
 import logging
 from decimal import Decimal
 from unittest import TestCase
-from urllib.parse import quote_plus
 from service import app
 from service.common import status
 from service.models import db, init_db, Product
@@ -256,7 +255,7 @@ class TestProductRoutes(TestCase):
         same_availability_products = [product for product in products if product.available == availability]
         response = self.client.get(BASE_URL, query_string=f"available={products[0].available}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.get_json()), len(same_availability_products))    
+        self.assertEqual(len(response.get_json()), len(same_availability_products))
 
     ######################################################################
     # Utility functions

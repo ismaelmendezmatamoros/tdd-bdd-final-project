@@ -90,7 +90,6 @@ def create_products():
     # Uncomment this line of code once you implement READ A PRODUCT
     #
     location_url = url_for("get_products", product_id=product.id, _external=True)
-    #location_url = "/"  # delete once READ is implemented
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
 
@@ -104,6 +103,7 @@ def create_products():
 
 @app.route("/products", methods=["GET"])
 def list_all():
+    """List all products"""
     name = request.args.get("name")
     category = request.args.get("category")
     availability = request.args.get("available")
@@ -115,7 +115,6 @@ def list_all():
             products = Product.find_by_category(Category[category])
         else:
             if availability:
-                boolean_value = availability == "True"
                 products = Product.find_by_availability(availability)
             else:
                 products = Product.all()
@@ -129,8 +128,11 @@ def list_all():
 #
 # PLACE YOUR CODE HERE TO READ A PRODUCT
 #
+
+
 @app.route("/products/<int:product_id>", methods=["GET"])
 def get_products(product_id):
+    """Get a product by ID"""
     app.logger.info("Request to Retrieve a product with id [%s]", product_id)
     product = Product.find(product_id)
     if not product:
@@ -145,11 +147,13 @@ def get_products(product_id):
 # PLACE YOUR CODE TO UPDATE A PRODUCT HERE
 #
 
+
 @app.route("/products/<int:product_id>", methods=["PUT"])
 def update_products(product_id):
+    """Update product by ID"""
     check_content_type("application/json")
     product = Product.find(product_id)
-    if product == None:
+    if product is None:
         abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
     product.deserialize(request.get_json())
     product.id = product_id
@@ -166,10 +170,9 @@ def update_products(product_id):
 #
 @app.route("/products/<int:product_id>", methods=["DELETE"])
 def delete_product(product_id):
+    """Delete a product by ID"""
     product = Product.find(product_id)
-    if product == None:
+    if product is None:
         abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
     product.delete()
     return "", status.HTTP_204_NO_CONTENT
-   
-
